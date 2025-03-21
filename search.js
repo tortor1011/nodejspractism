@@ -47,7 +47,6 @@ const imageSchema = new mongoose.Schema({
 
 imageSchema.index({ category: 1 });
 imageSchema.index({ uploaded_at: -1 });
-imageSchema.index({ title: 'text', tags: 'text', category: 'text' }); // เพิ่ม text index สำหรับค้นหา keyword
 
 const Image = mongoose.model('Image', imageSchema);
 
@@ -83,7 +82,7 @@ app.get('/images', async (req, res) => {
     }
 });
 
-// API: ค้นหารูปภาพ
+// API: ค้นหารูปภาพ (เพิ่ม fuzzy search)
 app.get('/search', async (req, res) => {
     try {
         const { category, keyword } = req.query;
@@ -94,9 +93,14 @@ app.get('/search', async (req, res) => {
             query.category = { $in: category.split(',') };
         }
 
-        // ค้นหาตาม keyword
+        // ค้นหาตาม keyword ด้วย $regex (fuzzy search)
         if (keyword) {
-            query.$text = { $search: keyword };
+            const regex = new RegExp(keyword, 'i'); // 'i' สำหรับ case-insensitive
+            query.$or = [
+                { title: { $regex: regex } },
+                { tags: { $regex: regex } },
+                { category: { $regex: regex } }
+            ];
         }
 
         const images = await Image.find(query).sort({ uploaded_at: -1 });
