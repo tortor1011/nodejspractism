@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>kkustockphoto</title>
+    <style>
+        .form-section { margin: 20px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        .form-section h3 { margin-top: 0; }
+        select[multiple] { height: 150px; }
+        .image-list, .album-list, .album-images-list { display: flex; flex-wrap: wrap; gap: 10px; }
+        .image-list div, .album-list div, .album-images-list div { border: 1px solid #ccc; padding: 10px; border-radius: 5px; }
+        .album-list div { cursor: pointer; }
+        .album-list div:hover { background-color: #f0f0f0; }
+        .image-meta a, .album-meta a { color: blue; text-decoration: underline; cursor: pointer; }
+        .image-meta span, .album-meta span { margin-right: 5px; }
+        .message { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .message.success { background-color: #d4edda; color: #155724; }
+        .message.error { background-color: #f8d7da; color: #721c24; }
+        .message.info { background-color: #d1ecf1; color: #0c5460; }
+        img { width: 100px; height: 100px; object-fit: cover; }
+        .image-item { cursor: pointer; }
+        .image-item:hover { background-color: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <!-- ข้อความแนะนำ -->
+    <div class="message info">
+        <p><strong>คำแนะนำ:</strong> กรุณาอัปโหลดรูปภาพก่อน โดยใช้ฟอร์มด้านล่าง เพื่อให้มีรูปภาพสำหรับกำหนดหมวดหมู่และแท็ก</p>
+    </div>
+
+    <!-- ฟอร์มสร้างอัลบั้มและอัปโหลดรูปภาพ -->
+    <div class="form-section">
+        <h3>สร้างอัลบั้มและอัปโหลดรูปภาพ</h3>
+        <form id="createAndUploadForm">
+            <input type="text" name="album_name" placeholder="Album Name (e.g., งานกีฬามข. 2025)" required><br>
+            <label>เลือกภาพสำหรับ Album Cover:</label><br>
+            <input type="file" name="album_cover" accept="image/*" required><br>
+            <label>เลือกภาพสำหรับอัลบั้ม:</label><br>
+            <input type="file" name="images" accept="image/*" multiple required><br>
+            <input type="text" name="photographer" placeholder="Photographer" required><br>
+            <button type="submit">Upload Album</button>
+        </form>
+    </div>
+
+    <!-- ฟอร์มกำหนดหมวดหมู่ให้อัลบั้ม -->
+    <div class="form-section">
+        <h3>กำหนดหมวดหมู่ให้อัลบั้ม</h3>
+        <form id="setCategoryForm">
+            <label>เลือกอัลบั้ม:</label><br>
+            <select name="album_id" required>
+                <option value="">-- เลือกอัลบั้ม --</option>
+            </select><br>
+            <label>เลือกหมวดหมู่:</label><br>
+            <select name="category" multiple required>
+                <option value="ภาพวิวและพื้นที่ส่วนกลาง">ภาพวิวและพื้นที่ส่วนกลาง</option>
+                <option value="ภาพสิ่งอำนวยความสะดวก และการใช้ชีวิตใน มข.">ภาพสิ่งอำนวยความสะดวก และการใช้ชีวิตใน มข.</option>
+                <option value="ภาพการเรียนการสอน">ภาพการเรียนการสอน</option>
+                <option value="ภาพการวิจัยและนวัตกรรม">ภาพการวิจัยและนวัตกรรม</option>
+                <option value="ภาพเทรนด์ ภาพ ดิจิทัล">ภาพเทรนด์ ภาพ ดิจิทัล</option>
+                <option value="ภาพผู้บริหาร มข.">ภาพผู้บริหาร มข.</option>
+                <option value="ภาพศิลปวัฒนธรรมและศิลปสร้างสรรค์">ภาพศิลปวัฒนธรรมและศิลปสร้างสรรค์</option>
+                <option value="ภาพกิจกรรมลงชุมชน (CSV)">ภาพกิจกรรมลงชุมชน (CSV)</option>
+                <option value="ภาพนานาชาติ">ภาพนานาชาติ</option>
+                <option value="ภาพปริญญาบัตร และรัฐพิธีสำคัญ">ภาพปริญญาบัตร และรัฐพิธีสำคัญ</option>
+                <option value="ภาพมุมสูง ต่างๆ">ภาพมุมสูง ต่างๆ</option>
+                <option value="ภาพวิทยาศาสตร์-และวิทยาศาสตร์สุขภาพ">ภาพวิทยาศาสตร์-และวิทยาศาสตร์สุขภาพ</option>
+                <option value="โลโก้ 60 ปี มข. จากศูนย์ศิลปวัฒนธรรม มข.">โลโก้ 60 ปี มข. จากศูนย์ศิลปวัฒนธรรม มข.</option>
+                <option value="กีฬา">กีฬา</option>
+                <option value="คอนเสิร์ต-การแสดง">คอนเสิร์ต-การแสดง</option>
+            </select><br>
+            <button type="submit">Set Category</button>
+        </form>
+    </div>
+
+    <!-- ฟอร์มกำหนดแท็กให้รูปภาพ -->
+    <div class="form-section">
+        <h3>กำหนดแท็กให้รูปภาพ</h3>
+        <form id="setTagsForm">
+            <label>เลือกภาพ:</label><br>
+            <select name="image_id" required>
+                <option value="">-- เลือกภาพ --</option>
+            </select><br>
+            <label>เลือกแท็ก:</label><br>
+            <select name="tags" multiple required>
+                <!-- จะถูกโหลดจาก API /tags -->
+            </select><br>
+            <label>เพิ่มแท็กใหม่:</label><br>
+            <input type="text" name="new_tag" placeholder="New Tag"><br>
+            <input type="text" name="requested_by" placeholder="Your Name (for tag request)" value="User1"><br>
+            <button type="submit">Set Tags</button>
+        </form>
+    </div>
+
+    <!-- ฟอร์มค้นหา -->
+    <div class="form-section">
+        <h3>ค้นหา</h3>
+        <input type="text" id="searchQuery" placeholder="ค้นหาจาก Tags, Album, Category (เช่น กีฬา)">
+        <button onclick="search()">ค้นหา</button>
+    </div>
+
+    <!-- แสดงข้อความแจ้งเตือน -->
+    <div id="messageContainer"></div>
+
+    <!-- แสดงรายการอัลบั้ม -->
+    <h3>รายการอัลบั้ม (คลิกเพื่อดูรูปภาพในอัลบั้ม)</h3>
+    <div class="album-list" id="albumList"></div>
+
+    <!-- แสดงรูปภาพในอัลบั้มที่เลือก -->
+    <h3>รูปภาพในอัลบั้ม</h3>
+    <div>
+        <label>เรียงลำดับตาม:</label>
+        <select id="albumImagesSort" onchange="fetchAlbumImages(currentAlbumId)">
+            <option value="uploaded_at">วันที่อัปโหลด (ล่าสุดก่อน)</option>
+            <option value="downloads">Download Count (มากไปน้อย)</option>
+            <option value="views">View Count (มากไปน้อย)</option>
+        </select>
+    </div>
+    <div class="album-images-list" id="albumImagesList">
+        <p>คลิกที่อัลบั้มด้านบนเพื่อดูรูปภาพ</p>
+    </div>
+
+    <!-- แสดงรายการรูปภาพทั้งหมด -->
+    <h3>รูปภาพทั้งหมด</h3>
+    <div>
+        <label>เรียงลำดับตาม:</label>
+        <select id="imagesSort" onchange="fetchImages()">
+            <option value="uploaded_at">วันที่อัปโหลด (ล่าสุดก่อน)</option>
+            <option value="downloads">Download Count (มากไปน้อย)</option>
+            <option value="views">View Count (มากไปน้อย)</option>
+        </select>
+    </div>
+    <div class="image-list" id="imageList"></div>
+
+    <script>
+        let currentAlbumId = null;
+
+        function showMessage(message, type) {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = `<div class="message ${type}"><p>${message}</p></div>`;
+            setTimeout(() => {
+                messageContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        function displayAlbums(albums) {
+            const albumList = document.getElementById('albumList');
+            albumList.innerHTML = albums.length === 0 
+                ? '<p>ยังไม่มีอัลบั้ม กรุณาสร้างอัลบั้มและอัปโหลดรูปภาพ</p>'
+                : albums.map(album => {
+                    const coverSrc = album.album_cover && album.album_cover.data 
+                        ? `http://localhost:3000/album/${album._id}/cover`
+                        : 'https://placehold.co/100';
+
+                    return `
+                        <div class="album-item" data-album-id="${album._id}">
+                            <img src="${coverSrc}" alt="${album.album_name}" onerror="this.src='https://placehold.co/100'">
+                            <p>${album.album_name}</p>
+                            <div class="album-meta">
+                                <span>จำนวนรูปภาพ: ${album.image_count}</span><br>
+                                <span>หมวดหมู่: ${album.category ? album.category.join(', ') : 'ยังไม่ได้กำหนด'}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            // เพิ่ม event listener สำหรับคลิกที่อัลบั้ม
+            document.querySelectorAll('.album-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const albumId = this.getAttribute('data-album-id');
+                    currentAlbumId = albumId;
+                    fetchAlbumImages(albumId);
+                });
+            });
+
+            // อัปเดต dropdown สำหรับเลือกอัลบั้ม
+            const albumSelect = document.querySelector('#setCategoryForm select[name="album_id"]');
+            albumSelect.innerHTML = '<option value="">-- เลือกอัลบั้ม --</option>' + albums.map(album => 
+                `<option value="${album._id}">${album.album_name}</option>`
+            ).join('');
+        }
+
+        function displayImages(images) {
+            const imageList = document.getElementById('imageList');
+            imageList.innerHTML = images.length === 0 
+                ? '<p>ยังไม่มีรูปภาพ กรุณาอัปโหลดรูปภาพก่อน</p>'
+                : images.map(img => {
+                    const thumbnailSrc = img.thumbnail && img.thumbnail.data 
+                        ? `http://localhost:3000/image/${img._id}/thumbnail`
+                        : 'https://placehold.co/100';
+
+                    return `
+                        <div class="image-item" data-image-id="${img._id}">
+                            <img src="${thumbnailSrc}" alt="${img.title}" onerror="this.src='https://placehold.co/100'">
+                            <p>${img.title}</p>
+                            <div class="image-meta">
+                                <span>ถ่ายรูปโดย: ${img.photographer}</span><br>
+                                <span>Tags: ${img.tags ? img.tags.join(', ') : 'ยังไม่ได้กำหนด'}</span><br>
+                                <span>Album: ${img.album_name || 'None'}</span><br>
+                                <span>Views: ${img.views}</span><br>
+                                <span>Downloads: ${img.downloads}</span><br>
+                                <a href="http://localhost:3000/image/${img._id}/download">ดาวน์โหลด</a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            // เพิ่ม event listener สำหรับคลิกที่รูปภาพเพื่อดูขนาดเต็ม
+            document.querySelectorAll('.image-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const imageId = this.getAttribute('data-image-id');
+                    window.open(`http://localhost:3000/image/${imageId}/fullsize`, '_blank');
+                });
+            });
+
+            // อัปเดต dropdown สำหรับเลือกภาพ
+            const imageSelect = document.querySelector('#setTagsForm select[name="image_id"]');
+            imageSelect.innerHTML = '<option value="">-- เลือกภาพ --</option>' + images.map(img => 
+                `<option value="${img._id}">${img.title}</option>`
+            ).join('');
+        }
+
+        function displayAlbumImages(images) {
+            const albumImagesList = document.getElementById('albumImagesList');
+            albumImagesList.innerHTML = images.length === 0 
+                ? '<p>ไม่มีรูปภาพในอัลบั้มนี้</p>'
+                : images.map(img => {
+                    const thumbnailSrc = img.thumbnail && img.thumbnail.data 
+                        ? `http://localhost:3000/image/${img._id}/thumbnail`
+                        : 'https://placehold.co/100';
+
+                    return `
+                        <div class="image-item" data-image-id="${img._id}">
+                            <img src="${thumbnailSrc}" alt="${img.title}" onerror="this.src='https://placehold.co/100'">
+                            <p>${img.title}</p>
+                            <div class="image-meta">
+                                <span>ถ่ายรูปโดย: ${img.photographer}</span><br>
+                                <span>Tags: ${img.tags ? img.tags.join(', ') : 'ยังไม่ได้กำหนด'}</span><br>
+                                <span>Album: ${img.album_name || 'None'}</span><br>
+                                <span>Views: ${img.views}</span><br>
+                                <span>Downloads: ${img.downloads}</span><br>
+                                <a href="http://localhost:3000/image/${img._id}/download">ดาวน์โหลด</a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            // เพิ่ม event listener สำหรับคลิกที่รูปภาพเพื่อดูขนาดเต็ม
+            document.querySelectorAll('.image-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const imageId = this.getAttribute('data-image-id');
+                    window.open(`http://localhost:3000/image/${imageId}/fullsize`, '_blank');
+                });
+            });
+        }
+
+        function loadTags() {
+            fetch('http://localhost:3000/tags')
+                .then(res => res.json())
+                .then(tags => {
+                    const tagSelect = document.querySelector('#setTagsForm select[name="tags"]');
+                    tagSelect.innerHTML = tags.map(tag => 
+                        `<option value="${tag}">${tag}</option>`
+                    ).join('');
+                })
+                .catch(err => {
+                    console.error('Error loading tags:', err);
+                    showMessage('เกิดข้อผิดพลาดในการโหลดแท็ก', 'error');
+                });
+        }
+
+        function fetchAlbumImages(albumId) {
+            const sortBy = document.getElementById('albumImagesSort').value;
+            fetch(`http://localhost:3000/album/${albumId}/images?sortBy=${sortBy}`)
+                .then(res => res.json())
+                .then(images => displayAlbumImages(images))
+                .catch(err => {
+                    console.error('Error fetching album images:', err);
+                    showMessage('เกิดข้อผิดพลาดในการโหลดรูปภาพในอัลบั้ม', 'error');
+                });
+        }
+
+        function fetchImages() {
+            const sortBy = document.getElementById('imagesSort').value;
+            fetch(`http://localhost:3000/images?sortBy=${sortBy}`)
+                .then(res => res.json())
+                .then(images => displayImages(images))
+                .catch(err => {
+                    console.error('Error fetching images:', err);
+                    showMessage('เกิดข้อผิดพลาดในการโหลดรูปภาพ', 'error');
+                });
+        }
+
+        function search() {
+            const query = document.getElementById('searchQuery').value;
+            const sortBy = document.getElementById('imagesSort').value;
+            if (!query) {
+                showMessage('กรุณากรอกคำค้นหา', 'error');
+                return;
+            }
+
+            fetch(`http://localhost:3000/search?query=${encodeURIComponent(query)}&sortBy=${sortBy}`)
+                .then(res => res.json())
+                .then(data => {
+                    displayAlbums(data.albums);
+                    displayImages(data.images);
+                    document.getElementById('albumImagesList').innerHTML = '<p>คลิกที่อัลบั้มด้านบนเพื่อดูรูปภาพ</p>';
+                })
+                .catch(err => {
+                    console.error('Error searching:', err);
+                    showMessage('เกิดข้อผิดพลาดในการค้นหา', 'error');
+                });
+        }
+
+        document.getElementById('createAndUploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch('http://localhost:3000/create-and-upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.text().then(text => { throw new Error(`Server error: ${text}`); });
+                }
+                return res.json();
+            })
+            .then(data => {
+                showMessage(data.message, 'success');
+                this.reset();
+                fetchAlbums();
+                fetchImages();
+            })
+            .catch(err => {
+                console.error('Error:', err.message);
+                showMessage(`เกิดข้อผิดพลาด: ${err.message}`, 'error');
+            });
+        });
+
+        document.getElementById('setCategoryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const albumId = this.album_id.value;
+            const selectedCategories = Array.from(this.category.selectedOptions).map(opt => opt.value);
+            fetch(`http://localhost:3000/album/${albumId}/category`, {
+                method: 'POST',
+                body: JSON.stringify({ category: selectedCategories }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                showMessage(data.message, 'success');
+                fetchAlbums();
+            })
+            .catch(err => {
+                console.error('Error:', err.message);
+                showMessage(`เกิดข้อผิดพลาด: ${err.message}`, 'error');
+            });
+        });
+
+        document.getElementById('setTagsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const imageId = this.image_id.value;
+            const selectedTags = Array.from(this.tags.selectedOptions).map(opt => opt.value);
+            const newTag = this.new_tag.value.trim();
+            const requestedBy = this.requested_by.value.trim();
+
+            if (!imageId) {
+                showMessage('กรุณาเลือกภาพก่อน', 'error');
+                return;
+            }
+
+            if (newTag) {
+                fetch('http://localhost:3000/request-tag', {
+                    method: 'POST',
+                    body: JSON.stringify({ tag_name: newTag, requested_by: requestedBy }),
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    showMessage(data.message, 'success');
+                    selectedTags.push(newTag);
+                    return fetch(`http://localhost:3000/image/${imageId}/tags`, {
+                        method: 'POST',
+                        body: JSON.stringify({ tags: selectedTags }),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                })
+                .then(res => res.json())
+                .then(data => {
+                    showMessage(data.message, 'success');
+                    fetchImages();
+                    loadTags();
+                })
+                .catch(err => {
+                    console.error('Error requesting new tag:', err.message);
+                    showMessage(`เกิดข้อผิดพลาด: ${err.message}`, 'error');
+                });
+            } else {
+                fetch(`http://localhost:3000/image/${imageId}/tags`, {
+                    method: 'POST',
+                    body: JSON.stringify({ tags: selectedTags }),
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    showMessage(data.message, 'success');
+                    fetchImages();
+                })
+                .catch(err => {
+                    console.error('Error:', err.message);
+                    showMessage(`เกิดข้อผิดพลาด: ${err.message}`, 'error');
+                });
+            }
+        });
+
+        function fetchAlbums() {
+            fetch('http://localhost:3000/albums')
+                .then(res => res.json())
+                .then(albums => displayAlbums(albums))
+                .catch(err => {
+                    console.error('Error fetching albums:', err);
+                    showMessage('เกิดข้อผิดพลาดในการโหลดอัลบั้ม', 'error');
+                });
+        }
+
+        window.addEventListener('load', () => {
+            fetchAlbums();
+            fetchImages();
+            loadTags();
+        });
+    </script>
+</body>
+</html>
