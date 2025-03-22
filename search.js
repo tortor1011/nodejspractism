@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 const upload = multer({ storage: multer.memoryStorage() });
-
+//  เปลี่ยนฐานข้อมูลให้เป็นของตนเอง โดยเปลี่ยน kkustockphoto เป็นชื่อฐานข้อมูลของตนเอง
 mongoose.connect('mongodb://localhost:27017/kkustockphoto', {
     useNewUrlParser: true,
     useUnifiedTopology: true
